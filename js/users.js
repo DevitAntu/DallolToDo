@@ -108,13 +108,13 @@ function getUser(userName, password, auth) {
       body.insertAdjacentHTML(
         "afterbegin",
         `
-      <h1>Hi ${userName} You Have <span id="todolength">${
-          user.todos.length
-        }</span> ToDo<span id="todos">${
-          user.todos.length >= 2 ? "s" : ""
-        }</span></h1>
+        <div class="name">
+        <h1>ToDos</h1>
+        <button title="${user.userName} : ${user.email}"style="cursor: pointer;" onClick="logout()">Log Out</button>
+        </div>
       `
       );
+      showStatus(user.todos.length);
     } else if (
       (userName == user.userName && user.password != password) ||
       (userName == user.email && user.password != password)
@@ -142,6 +142,10 @@ function getUser(userName, password, auth) {
     }
   }
 }
+// Logout
+function logout() {
+  location.reload();
+}
 // Todo
 // SELECT ELEMENTS FROM DOM
 const clear = document.querySelector(".clear");
@@ -151,7 +155,8 @@ const input = document.querySelector("#input");
 const add = document.getElementById("add-btn");
 const div = document.createElement("div");
 const content = document.querySelector(".content");
-const empty = `<div id="empty">No Todos yet.</div>`;
+const empty = `<div id="empty">No Todos yet.</>`;
+const status = document.getElementById("status");
 // Use Full classes
 const CHECK = "fa-check-circle";
 const UNCHECK = "fa-circle-thin";
@@ -216,6 +221,13 @@ list.addEventListener("click", (event) => {
     }
   } catch (error) {}
 });
+// Show status
+function showStatus(todolength) {
+  status.innerHTML = `ToDo<span id="todos">${
+    todolength >= 2 ? "s" : ""
+  }</span>: <span id="todolength">${todolength}</span>`;
+}
+
 // Update status
 function updateTodostatus(type) {
   let numOftodos =
