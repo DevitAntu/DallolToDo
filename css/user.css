@@ -119,15 +119,70 @@ body {
   text-decoration: line-through;
   color: #ccc;
 }
-.item i.de {
+.item i.me {
   position: absolute;
   font-size: 25px;
   right: 15px;
   top: 10px;
 }
+.item i.me:hover {
+  color: aqua;
+  cursor: pointer;
+}
+.popup {
+  display: none;
+  position: absolute;
+  top: 40px;
+  right: 0;
+  border: 1px solid #ccc;
+  height: 80px;
+  width: 90px;
+  z-index: 780;
+  background: rgb(255, 255, 255);
+}
+#list {
+  text-transform: capitalize;
+}
+.popup i.ed {
+  position: absolute;
+  font-size: 20px;
+  left: 4px;
+  top: 10px;
+}
+.popup i.ed:hover {
+  color: #4162f6;
+  cursor: pointer;
+}
+.popup i.ed::after {
+  content: "Edit";
+  font-size: 15px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+}
+.popup i.de::after {
+  content: "Delete";
+  font-size: 15px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+}
+.popup i.de {
+  position: absolute;
+  font-size: 20px;
+  left: 4px;
+  top: 50px;
+}
 .item i.de:hover {
   color: #af0000;
   cursor: pointer;
+}
+.block {
+  display: block;
+}
+#edited {
+  padding: 4px;
+  border: none;
+  border-bottom: 2px solid #4162f6;
+  outline: none;
 }
 /* ------------ add item ------------ */
 .add-to-do {

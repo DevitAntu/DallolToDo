@@ -6,9 +6,7 @@ function userForm(type, isNewUser) {
     if (isNewUser) {
       document.getElementById("userform").style.display = "none";
     }
-  } catch (error) {
-    console.log(`Catched!!! ${error}`);
-  }
+  } catch (error) {}
   if (isNewUser) {
     showemail = `<input type="email" id="email" name="email" placeholder="Email" />`;
     place = "";
@@ -35,7 +33,7 @@ function userForm(type, isNewUser) {
 }
 
 let newUser = false;
-let users, userid, toDoId;
+let users, userid;
 let usersdata = localStorage.getItem("Users");
 if (usersdata) {
   userForm("Login", newUser);
@@ -48,7 +46,6 @@ if (usersdata) {
 function signUser() {
   users = [];
   userid = 0;
-  toDoId = 0;
   const btn = document.querySelector('form button[type="button"]');
   btn.addEventListener("click", (event) => {
     event.target.preventDefault;
@@ -70,6 +67,7 @@ function loadUser() {
     const User = document.getElementById("userName").value;
     const password = document.getElementById("password").value;
     getUser(User, password, true);
+    loadTodo();
   });
   const SignUp = document.getElementById("SignUp");
   SignUp.addEventListener("click", () => {
@@ -99,18 +97,22 @@ function addUser(userName, userId, email, password) {
   localStorage.setItem("Users", JSON.stringify(users));
 }
 function getUser(userName, password, auth) {
-  users.map((user) => {
+  for (let i = 0; i < users.length; i++) {
+    const user = users[i];
     if (
       (userName == user.userName && user.password == password) ||
       (userName == user.email && user.password == password)
     ) {
+      window.currentuserId = user.userid;
       document.getElementById("userform").style.display = "none";
       body.insertAdjacentHTML(
         "afterbegin",
         `
-      <h1>Hi ${userName} You Have ${
-          user.todos.length ? user.todos.length : "Zero"
-        } todos</h1>
+      <h1>Hi ${userName} You Have <span id="todolength">${
+          user.todos.length
+        }</span> ToDo<span id="todos">${
+          user.todos.length >= 2 ? "s" : ""
+        }</span></h1>
       `
       );
     } else if (
@@ -138,9 +140,8 @@ function getUser(userName, password, auth) {
           "<h3>Incorrect UserName Or Email</h3>";
       }
     }
-  });
+  }
 }
-
 // Todo
 // SELECT ELEMENTS FROM DOM
 const clear = document.querySelector(".clear");
@@ -150,67 +151,221 @@ const input = document.querySelector("#input");
 const add = document.getElementById("add-btn");
 const div = document.createElement("div");
 const content = document.querySelector(".content");
+const empty = `<div id="empty">No Todos yet.</div>`;
 // Use Full classes
 const CHECK = "fa-check-circle";
 const UNCHECK = "fa-circle-thin";
 const LINE_THROUGH = "lineThrough";
-// Add Todo
-function addTodo(userName, todo, id, done) {
-  if (users.userName == userName) {
-    users.todos.push({
-      name: todo,
-      id: id,
-      done: done,
-    });
+// Show Date to UI
+const options = { weekday: "long", month: "long", day: "numeric" };
+const today = new Date();
+date.innerHTML = today.toLocaleDateString("en-US", options);
+let id = 0;
+addEmpty();
+// Add Empty
+function addEmpty() {
+  const childNodes = [...content.childNodes];
+  let add = true;
+  for (let index = 0; index < childNodes.length; index++) {
+    if (childNodes[index].id == "empty") {
+      add = false;
+      return;
+    }
   }
+  if (add) {
+    content.insertAdjacentHTML("beforeend", empty);
+  }
+}
+function removeEmpty() {
+  try {
+    content.removeChild(document.getElementById("empty"));
+  } catch (error) {}
+}
+// Add Todo
+add.addEventListener("click", () => {
+  addTodo(input.value, false);
+});
+list.addEventListener("click", (event) => {
+  try {
+    const element = event.target;
+    const elementJob = element.attributes.job.value;
+    if (elementJob == "complete") {
+      completeTodo(element);
+    } else if (elementJob == "menu") {
+      const popup = document.querySelector(`.popup.pop-${element.id}`);
+      popup.classList.toggle("block");
+      popup.addEventListener("click", (event) => {
+        const popelement = event.target;
+        const popelementJob = popelement.attributes.job.value;
+        if (popelementJob == "edit") {
+          editTodo(popelement);
+        } else if (popelementJob == "delete") {
+          removeTodo(popelement);
+        }
+      });
+      document.addEventListener("click", (event) => {
+        const menu = document.querySelector(`.me-${event.target.id}`);
+        if (event.target != popup && event.target != menu) {
+          if (popup) {
+            popup.classList.remove("block");
+          }
+        }
+        if (popup) {
+        }
+      });
+    }
+  } catch (error) {}
+});
+// Update status
+function updateTodostatus(type) {
+  let numOftodos =
+    document.getElementById("todolength").textContent == "Zero"
+      ? 0
+      : Number(document.getElementById("todolength").textContent);
+  let opretion = type == "add" ? (numOftodos += 1) : (numOftodos -= 1);
+  document.getElementById("todolength").textContent = `${opretion}`;
+}
+// Get Current User Todos
+let toDoId;
+let currentUserTodos;
+function getcurrentUserTodos() {
+  for (let index = 0; index < users.length; index++) {
+    const user = users[index];
+    if (user.userid == currentuserId) {
+      if (user.todos) {
+        currentUserTodos = user.todos;
+        toDoId = currentUserTodos.length;
+      } else {
+        toDoId = 0;
+      }
+    }
+  }
+}
+clear.addEventListener("click", () => {
+  getcurrentUserTodos();
+  currentUserTodos.map(() => {
+    currentUserTodos.pop();
+    currentUserTodos.shift();
+  });
+  list.innerHTML = "";
+  document.getElementById("todolength").textContent = 0;
+  document.getElementById("todos").textContent = "";
+  localStorage.setItem("Users", JSON.stringify(users));
+});
+// Load Todos
+function loadTodo() {
+  for (const user of users) {
+    if (!(user.userid == currentuserId)) continue;
+    if (user.todos) {
+      const todo = user.todos;
+      todo.forEach((element) => {
+        let todo = element.name;
+        let done = element.done;
+        let id = element.id;
+        const DONE = done ? CHECK : UNCHECK;
+        const LINE = done ? LINE_THROUGH : "";
+
+        const item = `<li class="item">
+                  <i title="Done" class="fa ${DONE} co" job="complete" id="${id}"></i>
+                  <p class="text ${LINE}">${todo}</p>
+                  <i class="fa fa-caret-down me me-${id}" id="${id}" job="menu" ></i>
+                  <div class="popup pop-${id}">
+                    <i class="fa fa-pencil ed" title="Edit" job="edit"  id="${id}"></i>
+                    <i title="Delete" class="fa fa-trash-o de" job="delete" id="${id}"></i>
+                  </div>
+                </li>
+                  `;
+        const position = "beforeend";
+        if (todo) {
+          list.insertAdjacentHTML(position, item);
+        }
+        removeEmpty();
+      });
+    }
+  }
+}
+function addTodo(todo, done) {
+  getcurrentUserTodos();
+  currentUserTodos.push({
+    name: todo,
+    id: toDoId,
+    done: done,
+  });
   const DONE = done ? CHECK : UNCHECK;
   const LINE = done ? LINE_THROUGH : "";
 
   const item = `<li class="item">
-                      <i title="Done" class="fa ${DONE} co" job="complete" id="${id}"></i>
-                      <p class="text ${LINE}">${todo}</p>
-                      <i title="Delete this item" class="fa fa-trash-o de" job="delete" id="${id}"></i>
-                    </li>
+                  <i title="Done" class="fa ${DONE} co" job="complete" id="${toDoId}"></i>
+                  <p class="text ${LINE}">${todo}</p>
+                  <i class="fa fa-caret-down me me-${toDoId}" id="${toDoId}" job="menu" ></i>
+                  <div class="popup pop-${toDoId}">
+                    <i class="fa fa-pencil ed" title="Edit" job="edit"  id="${toDoId}"></i>
+                    <i title="Delete" class="fa fa-trash-o de" job="delete" id="${toDoId}"></i>
+                  </div>
+                </li>
                   `;
   const position = "beforeend";
   if (todo) {
     list.insertAdjacentHTML(position, item);
     input.value = "";
   }
-  localStorage.setItem("Users", users);
+  const s = document.getElementById("todos");
+  currentUserTodos.length >= 2 ? (s.textContent = "s") : (s.textContent = "");
+  removeEmpty();
+  localStorage.setItem("Users", JSON.stringify(users));
+  updateTodostatus("add");
+}
+// edit Todo
+function editTodo(element) {
+  const text = element.parentNode.parentNode.querySelector(".text");
+  text.innerHTML = `<input id="edited" autofocus type="text" value="${text.textContent}">`;
+  text.addEventListener("keyup", (event) => {
+    const edited = document.getElementById("edited");
+    if (event.keyCode == 13) {
+      text.textContent = `${edited.value}`;
+      getcurrentUserTodos();
+      currentUserTodos[element.id].name = `${edited.value}`;
+      localStorage.setItem("Users", JSON.stringify(users));
+    }
+  });
 }
 // remove todo
 function removeTodo(element) {
-  element.parentNode.parentNode.removeChild(element.parentNode);
-  users.map((user) => {
-    if (userName == user.userName) {
-      user.todos.pop(element.id);
+  try {
+    element.parentNode.parentNode.parentNode.removeChild(
+      element.parentNode.parentNode
+    );
+    getcurrentUserTodos();
+    currentUserTodos.pop(element.id);
+
+    localStorage.setItem("Users", JSON.stringify(users));
+    updateTodostatus("remove");
+    const s = document.getElementById("todos");
+    currentUserTodos.length >= 2 ? (s.textContent = "s") : (s.textContent = "");
+    if (currentUserTodos.length) {
+      return;
     }
-  });
-  localStorage.setItem("Users", JSON.stringify(users));
-  if (LIST.length) {
-    return;
-  }
-  addEmpty();
+    addEmpty();
+  } catch (err) {}
 }
 // compelet todo
 function completeTodo(element) {
   element.classList.toggle(CHECK);
   element.classList.toggle(UNCHECK);
   element.parentNode.querySelector(".text").classList.toggle(LINE_THROUGH);
-
-  users[userid].todos[element.id].done = users[userid].todos[element.id].done
+  getcurrentUserTodos();
+  currentUserTodos[element.id].done = currentUserTodos[element.id].done
     ? false
     : true;
-  localStorage.setItem("Users", JSON.stringify(LIST));
+  localStorage.setItem("Users", JSON.stringify(users));
 }
 
-// document.addEventListener("keyup", (event) => {
-//   if (event.keyCode == 13) {
-//     todo = input.value;
-//     if (todo) {
-//       addTodo(currentUser, todo, id, false);
-//       localStorage.setItem("Users", JSON.stringify(users));
-//     }
-//   }
-// });
+input.addEventListener("keyup", (event) => {
+  if (event.keyCode == 13) {
+    todo = input.value;
+    if (todo) {
+      addTodo(todo, false);
+      localStorage.setItem("Users", JSON.stringify(users));
+    }
+  }
+});
