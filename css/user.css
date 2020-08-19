@@ -4,7 +4,7 @@ body {
   margin: 0;
   background-color: rgba(0, 0, 0, 0.1);
   font-family: "Titillium Web", sans-serif;
-  overflow: auto;
+  overflow-x: hidden;
   height: 100vh;
   width: 100vw;
 }
@@ -40,6 +40,20 @@ body {
   to {
     background-position: 100%;
   }
+}
+#profile {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: aqua;
+  font-size: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgb(255, 255, 255);
+  text-transform: uppercase;
+  position: relative;
 }
 .clear {
   width: 30px;
@@ -130,6 +144,7 @@ body {
   cursor: pointer;
 }
 .popup {
+  animation: fade 0.2s ease-in-out forwards;
   display: none;
   position: absolute;
   top: 40px;
@@ -139,6 +154,8 @@ body {
   width: 90px;
   z-index: 780;
   background: rgb(255, 255, 255);
+  animation: fade 0.2s ease-in-out forwards;
+  transition: all 0.2s ease-in-out;
 }
 #list {
   text-transform: capitalize;
@@ -175,9 +192,6 @@ body {
   color: #af0000;
   cursor: pointer;
 }
-.block {
-  display: block;
-}
 .name {
   display: flex;
   justify-content: space-evenly;
@@ -187,13 +201,19 @@ body {
   color: white;
   width: 100%;
 }
-.name button {
+.logout {
+  display: none;
   padding: 10px;
   height: fit-content;
   background-image: linear-gradient(rgb(0, 255, 0), rgb(0, 212, 250));
   border: 2px solid rgb(0, 255, 0);
   border-radius: 10px;
   font-weight: 500;
+  position: absolute;
+  top: 90px;
+  right: 125px;
+  animation: fade 0.2s ease-in-out forwards;
+  transition: all 0.2s ease-in-out;
 }
 #status {
   position: absolute;
@@ -329,4 +349,15 @@ input:focus {
 }
 #center button:focus {
   outline: 2px solid rgb(0, 255, 0);
+}
+.block {
+  display: block;
+}
+@keyframes fade {
+  0% {
+    transform: translateY(10%);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }

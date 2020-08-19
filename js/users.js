@@ -55,6 +55,7 @@ function signUser() {
     addUser(formName, userid, email, password);
     getUser(formName, password, false);
     document.getElementById("userform").style.display = "none";
+    input.focus();
   });
 }
 function loadUser() {
@@ -68,6 +69,7 @@ function loadUser() {
     const password = document.getElementById("password").value;
     getUser(User, password, true);
     loadTodo();
+    input.focus();
   });
   const SignUp = document.getElementById("SignUp");
   SignUp.addEventListener("click", () => {
@@ -81,6 +83,7 @@ function loadUser() {
       const password = document.getElementById("password").value;
       addUser(User, userid, email, password);
       getUser(User, password, false);
+      input.focus();
       return;
     });
   });
@@ -110,10 +113,14 @@ function getUser(userName, password, auth) {
         `
         <div class="name">
         <h1>ToDos</h1>
-        <button title="${user.userName} : ${user.email}"style="cursor: pointer;" onClick="logout()">Log Out</button>
+        <div title="Profile ${user.userName} : ${user.email}" id="profile">${user.userName[0]}</div>
+        <button  class="logout" style="cursor: pointer;" onClick="logout()">Log Out</button>
         </div>
       `
       );
+      document.getElementById("profile").addEventListener("click", () => {
+        document.querySelector(".logout").classList.toggle("block");
+      });
       showStatus(user.todos.length);
     } else if (
       (userName == user.userName && user.password != password) ||
@@ -330,14 +337,19 @@ function addTodo(todo, done) {
 // edit Todo
 function editTodo(element) {
   const text = element.parentNode.parentNode.querySelector(".text");
-  text.innerHTML = `<input id="edited" autofocus type="text" value="${text.textContent}">`;
+  text.innerHTML = `<input id="edited" type="text" value="${text.textContent}">`;
+  const edited = document.getElementById("edited");
+  edited.focus();
   text.addEventListener("keyup", (event) => {
-    const edited = document.getElementById("edited");
     if (event.keyCode == 13) {
-      text.textContent = `${edited.value}`;
-      getcurrentUserTodos();
-      currentUserTodos[element.id].name = `${edited.value}`;
-      localStorage.setItem("Users", JSON.stringify(users));
+      if (edited.value) {
+        text.textContent = `${edited.value}`;
+        getcurrentUserTodos();
+        currentUserTodos[element.id].name = `${edited.value}`;
+        localStorage.setItem("Users", JSON.stringify(users));
+      } else {
+        edited.style.border = "2px solid red";
+      }
     }
   });
 }
