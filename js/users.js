@@ -1,169 +1,355 @@
 // User
+"use strict";
 const body = document.body;
-let showemail, place, message;
-function userForm(type, isNewUser) {
+let meta;
+function userForm(type, isNewUser, to) {
   try {
     if (isNewUser) {
       document.getElementById("userform").style.display = "none";
     }
-  } catch (error) {}
+  } catch (err) {}
   if (isNewUser) {
-    showemail = `<input type="email" id="email" name="email" placeholder="Email" />`;
-    place = "";
-    message = "";
+    meta = "";
   } else {
-    showemail = "";
-    place = "Or Email";
-    message = `<p style="color: white;">New Here <a href="#" style="color: aqua;"id='SignUp'>Sign Up</a></p>`;
+    meta = `<a class="forgetpassword" href="#"> Forgot Password? </a>`;
   }
   body.insertAdjacentHTML(
     "afterbegin",
-    `<div id="userform">
-    
-<form id="center">
-<h2 id="notify" style="color: white;">${type}</h2>
-  <input type="text" id="userName" name="userName"  placeholder="UserName ${place}" />
-  ${showemail}
-  <input type="password" id="password" name="password" placeholder="Password" />
-  <button type="button">${type}</button>
-  ${message}
-</form>
-</div>`
+    `<!-- Form-->
+    <div class="container-login100" id="userform">
+      <div class="wrap-login100">
+        <form class="login100-form validate-form">
+          <span class="login100-form-logo">
+            <img src="./img/user-solid.svg" width="70px" />
+          </span>
+
+          <span class="login100-form-title">
+            ${type}
+          </span>
+
+          <div
+            class="wrap-input100 validate-input"
+            data-validate="Username requierd"
+          >
+            <input class="input100 input" type="text" job="username" name="username" id="userName"/>
+            <span class="focus-input100" data-placeholder="UserName"></span>
+          </div>
+
+          <div
+            class="wrap-input100 validate-input"
+            data-validate="Password requierd"
+          >
+            <input class="input100 input" type="password" job="password" id="password" name="pass" />
+            <span class="focus-input100" data-placeholder="Password"></span>
+          </div>
+          <div class="contact100-form-checkbox">
+            <input
+              class="input-checkbox100 input"
+              id="ckb1"
+              type="checkbox"
+              name="remember-me"
+            />
+            <label class="label-checkbox100" for="ckb1">
+              Remember me
+            </label>
+          </div>
+
+          <div  class="container-login100-form-btn">
+            <button type="button"  id="submit" class="login100-form-btn button">
+              ${type}
+            </button>
+          </div>
+          <div class="meta">
+            ${meta}
+            <a class="signUp" id="signup"href="#">${to}</a>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+    <!-- End Form -->`
   );
 }
-
+function onkeyup() {
+  const form = [...document.querySelectorAll(".input100")];
+  form.forEach((e) => {
+    e.addEventListener("keyup", () => {
+      if (e.value) {
+        e.parentNode.classList.remove("alert-validate");
+        e.classList.add("has-val");
+        let submit = document.getElementById("submit");
+        submit.removeAttribute("disabled");
+        submit.classList.remove("disabled");
+      } else {
+        e.parentNode.classList.add("alert-validate");
+        e.classList.remove("has-val");
+        let submit = document.getElementById("submit");
+        submit.setAttribute("disabled", "true");
+        submit.classList.add("disabled");
+      }
+    });
+  });
+}
+function isUserUnique() {
+  const form = document.querySelectorAll(".input100");
+  form.forEach((e) => {
+    e.addEventListener("keyup", () => {
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        if (!e.value) {
+          e.classList.remove("has-val");
+        } else {
+          e.classList.add("has-val");
+        }
+        if (e.attributes.job.value == "password") {
+          if (!e.value) {
+            e.parentNode.attributes[1].value = "Password requierd";
+            e.parentNode.classList.add("alert-validate");
+            let submit = document.getElementById("submit");
+            submit.setAttribute("disabled", "true");
+            submit.classList.add("disabled");
+          }
+        }
+        if (e.attributes.job.value == "username") {
+        }
+        if (e.attributes.job.value == "username") {
+          if (!e.value) {
+            e.parentNode.classList.remove("yes");
+            e.parentNode.attributes[1].value = "UserName requierd";
+            e.parentNode.classList.add("alert-validate");
+            let submit = document.getElementById("submit");
+            submit.setAttribute("disabled", "true");
+            submit.classList.add("disabled");
+          } else if (user.userName == e.value) {
+            e.parentNode.classList.remove("yes");
+            e.parentNode.attributes[1].value = `${e.value} Unavialable`;
+            e.parentNode.classList.add("alert-validate");
+            let submit = document.getElementById("submit");
+            submit.setAttribute("disabled", "true");
+            submit.classList.add("disabled");
+          } else if (user.userName != e.value) {
+            e.parentNode.attributes[1].value = `${e.value} is avialable`;
+            e.parentNode.classList.add("alert-validate", "yes");
+            let submit = document.getElementById("submit");
+            submit.removeAttribute("disabled");
+            submit.classList.remove("disabled");
+          }
+        }
+      }
+    });
+  });
+}
 let newUser = false;
 let users, userid;
 let usersdata = localStorage.getItem("Users");
 if (usersdata) {
-  userForm("Login", newUser);
+  userForm("Login", newUser, "SignUp");
+  onkeyup();
   loadUser();
 } else {
-  userForm("Sign Up", true);
+  userForm("Sign Up", true, "");
+  onkeyup();
   signUser();
 }
-
+function isEmpty(name, password) {
+  if (name.value && password.value) {
+    addUser(name.value, users.length, password.value);
+    getUser(name.value, password.value, false);
+    document.getElementById("userform").style.display = "none";
+    input.focus();
+  } else if (name.value && !password.value) {
+    password.focus();
+    password.parentNode.attributes[1].value = "Password requierd";
+    password.parentNode.classList.add("alert-validate");
+    let submit = document.getElementById("submit");
+    submit.setAttribute("disabled", "true");
+    submit.classList.add("disabled");
+  } else if (!name.value && password.value) {
+    name.focus();
+    name.parentNode.attributes[1].value = "UserName requierd";
+    name.parentNode.classList.add("alert-validate");
+    let submit = document.getElementById("submit");
+    submit.setAttribute("disabled", "true");
+    submit.classList.add("disabled");
+  } else {
+    let submit = document.getElementById("submit");
+    submit.setAttribute("disabled", "true");
+    submit.classList.add("disabled");
+  }
+}
 function signUser() {
   users = [];
   userid = 0;
-  const btn = document.querySelector('form button[type="button"]');
+  const btn = document.getElementById("submit");
   btn.addEventListener("click", (event) => {
     event.target.preventDefault;
-    const formName = document.getElementById("userName").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    addUser(formName, userid, email, password);
-    getUser(formName, password, false);
-    document.getElementById("userform").style.display = "none";
-    input.focus();
+    const Name = document.getElementById("userName");
+    const password = document.getElementById("password");
+    isEmpty(Name, password);
   });
 }
 function loadUser() {
   users = JSON.parse(usersdata);
   userid = users.length;
 
-  const butn = document.querySelector('form button[type="button"]');
-  butn.addEventListener("click", (event) => {
+  const btn = document.getElementById("submit");
+  btn.addEventListener("click", (event) => {
     event.target.preventDefault;
     const User = document.getElementById("userName").value;
     const password = document.getElementById("password").value;
-    getUser(User, password, true);
-    loadTodo();
-    input.focus();
+    if (User && password) {
+      getUser(User, password, true);
+      input.focus();
+    } else {
+      let submit = document.getElementById("submit");
+      submit.setAttribute("disabled", "true");
+      submit.classList.add("disabled");
+    }
   });
-  const SignUp = document.getElementById("SignUp");
+  const SignUp = document.getElementById("signup");
   SignUp.addEventListener("click", () => {
     newUser = true;
-    userForm("Sign Up", newUser);
-    const btn = document.querySelector('form button[type="button"]');
+    userForm("Sign Up", newUser, "Login");
+    isUserUnique();
+    const SignUp = document.getElementById("signup");
+    SignUp.addEventListener("click", () => {
+      location.reload();
+    });
+    const btn = document.getElementById("submit");
     btn.addEventListener("click", (event) => {
       event.target.preventDefault;
-      const email = document.getElementById("email").value;
-      const User = document.getElementById("userName").value;
-      const password = document.getElementById("password").value;
-      addUser(User, userid, email, password);
-      getUser(User, password, false);
-      input.focus();
+      const User = document.getElementById("userName");
+      const password = document.getElementById("password");
+      isEmpty(User, password);
       return;
     });
   });
 }
 // Add User
-function addUser(userName, userId, email, password) {
+function addUser(userName, userId, password) {
   users.push({
     userName: userName,
-    email: email,
     password: password,
     userid: userId,
     todos: [],
   });
   localStorage.setItem("Users", JSON.stringify(users));
 }
+
+// Get User
 function getUser(userName, password, auth) {
-  for (let i = 0; i < users.length; i++) {
-    const user = users[i];
-    if (
-      (userName == user.userName && user.password == password) ||
-      (userName == user.email && user.password == password)
-    ) {
+  for (const user of users) {
+    if (userName == user.userName && user.password == password) {
       window.currentuserId = user.userid;
       document.getElementById("userform").style.display = "none";
-      body.insertAdjacentHTML(
-        "afterbegin",
-        `
-        <div class="name">
-        <h1>ToDos</h1>
-        <div title="Profile ${user.userName} : ${user.email}" id="profile">${user.userName[0]}</div>
-        <button  class="logout" style="cursor: pointer;" onClick="logout()">Log Out</button>
-        </div>
-      `
-      );
-      document.getElementById("profile").addEventListener("click", () => {
-        document.querySelector(".logout").classList.toggle("block");
-      });
       showStatus(user.todos.length);
-    } else if (
-      (userName == user.userName && user.password != password) ||
-      (userName == user.email && user.password != password)
-    ) {
       if (auth) {
-        document.getElementById("password").style.border = "4px solid red";
-        document.getElementById("password").value = "";
-        document.getElementById("notify").style.color = "red";
-        document.getElementById("notify").style.margin = "0";
-        document.getElementById("notify").innerHTML =
-          "<h3>Incorrect Password</h3>";
+        loadTodo();
       }
-    } else if (
-      (userName != user.userName && user.password == password) ||
-      (userName != user.email && user.password == password)
-    ) {
-      if (auth) {
-        document.getElementById("userName").style.border = "4px solid red";
-        document.getElementById("userName").value = "";
-        document.getElementById("notify").style.color = "red";
-        document.getElementById("notify").style.margin = "0";
-        document.getElementById("notify").innerHTML =
-          "<h3>Incorrect UserName Or Email</h3>";
-      }
+    } else if (userName != user.userName && user.password != password) {
+      if (!auth) return;
+      document.getElementById("password").parentNode.attributes[1].value =
+        "INCORRECT Password";
+      document
+        .getElementById("password")
+        .parentNode.classList.add("alert-validate");
+      document.getElementById("password").value = "";
+      document.getElementById("userName").parentNode.attributes[1].value =
+        "INCORRECT UserName";
+      document
+        .getElementById("userName")
+        .parentNode.classList.add("alert-validate");
+      return;
+    } else if (userName == user.userName && user.password != password) {
+      if (!auth) return;
+      document.getElementById("password").value = "";
+      document.getElementById("password").parentNode.attributes[1].value =
+        "INCORRECT Password";
+      document
+        .getElementById("password")
+        .parentNode.classList.add("alert-validate");
+      return;
+    } else if (userName != user.userName && user.password == password) {
+      if (!auth) return;
+      document.getElementById("userName").parentNode.attributes[1].value =
+        "INCORRECT UserName";
+      document
+        .getElementById("userName")
+        .parentNode.classList.add("alert-validate");
+      document.getElementById("password").value = "";
+      return;
     }
   }
 }
-// Logout
-function logout() {
-  location.reload();
-}
 // Todo
 // SELECT ELEMENTS FROM DOM
+const category = document.querySelector(".category");
+const filter = document.querySelector(".mo");
 const clear = document.querySelector(".clear");
+const completed = document.querySelector("#fi-com");
+const all = document.querySelector("#fi-al");
 const date = document.querySelector("#date");
 const list = document.getElementById("list");
 const input = document.querySelector("#input");
 const add = document.getElementById("add-btn");
 const div = document.createElement("div");
 const content = document.querySelector(".content");
-const empty = `<div id="empty">No Todos yet.</>`;
+const empty = `<div id="empty">No Todos yet.</div>`;
 const status = document.getElementById("status");
+// filter
+all.addEventListener("click", () => {
+  filterAll();
+});
+function filterAll() {
+  all.classList.add("active");
+  completed.classList.remove("active");
+  getcurrentUserTodos();
+  list.innerHTML = "";
+  currentUserTodos.forEach((e) => {
+    const DONE = e.done ? CHECK : UNCHECK;
+    const LINE = e.done ? LINE_THROUGH : "";
+    let item = `<li class="item">
+    <i title="Done" class="fa ${DONE} co" job="complete" id="${e.id}"></i>
+    <p class="text ${LINE}">${e.name}</p>
+    <i class="fa fa-caret-down me me-${e.id}" id="${e.id}" job="menu" ></i>
+    <div class="popup pop-${e.id}">
+      <i class="fa fa-pencil ed" title="Edit" job="edit"  id="${e.id}"></i>
+      <i title="Delete" class="fa fa-trash-o de" job="delete" id="${e.id}"></i>
+    </div>
+  </li>`;
+    list.insertAdjacentHTML("beforeend", item);
+  });
+}
+completed.addEventListener("click", () => {
+  all.classList.remove("active");
+  completed.classList.add("active");
+  getcurrentUserTodos();
+  list.innerHTML = "";
+  currentUserTodos.forEach((e) => {
+    if (e.done) {
+      const DONE = e.done ? CHECK : UNCHECK;
+      const LINE = e.done ? LINE_THROUGH : "";
+      let item = `<li class="item">
+    <i title="Done" class="fa ${DONE} co" job="complete" id="${e.id}"></i>
+    <p class="text ${LINE}">${e.name}</p>
+    <i class="fa fa-caret-down me me-${e.id}" id="${e.id}" job="menu" ></i>
+    <div class="popup pop-${e.id}">
+      <i class="fa fa-pencil ed" title="Edit" job="edit"  id="${e.id}"></i>
+      <i title="Delete" class="fa fa-trash-o de" job="delete" id="${e.id}"></i>
+    </div>
+  </li>`;
+      list.insertAdjacentHTML("beforeend", item);
+    }
+  });
+});
+filter.addEventListener("click", () => {
+  category.classList.toggle("block");
+  document.addEventListener("click", (e) => {
+    if (e.target != category && e.target != filter) {
+      category.classList.remove("block");
+    }
+  });
+});
 // Use Full classes
 const CHECK = "fa-check-circle";
 const UNCHECK = "fa-circle-thin";
@@ -195,7 +381,9 @@ function removeEmpty() {
 }
 // Add Todo
 add.addEventListener("click", () => {
-  addTodo(input.value, false);
+  if (input.value) {
+    addTodo(input.value, false);
+  }
 });
 list.addEventListener("click", (event) => {
   try {
@@ -304,7 +492,7 @@ function loadTodo() {
   }
 }
 function addTodo(todo, done) {
-  getcurrentUserTodos();
+  filterAll();
   currentUserTodos.push({
     name: todo,
     id: toDoId,
@@ -386,7 +574,7 @@ function completeTodo(element) {
 
 input.addEventListener("keyup", (event) => {
   if (event.keyCode == 13) {
-    todo = input.value;
+    let todo = input.value;
     if (todo) {
       addTodo(todo, false);
       localStorage.setItem("Users", JSON.stringify(users));
