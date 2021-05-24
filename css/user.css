@@ -35,7 +35,7 @@ body {
   background-size: 100%;
   background-position-y: center;
   background-repeat: no-repeat;
-  border-radius: 15px 15px 0 0;
+  /* border-radius: 15px 15px 0 0; */
   position: relative;
 }
 @keyframes bg-animation {
@@ -130,6 +130,14 @@ body {
   margin-bottom: 20px;
   transition: all 0.4s linear;
 }
+.item p.cat_text {
+  color: #fff;
+  left: 100px;
+  margin-left: 10px;
+  background: #e36414;
+  border-radius: 2px;
+  padding: 2px;
+}
 .lineThrough {
   text-decoration: line-through;
   color: #555555;
@@ -158,7 +166,7 @@ body {
   padding: 2px;
   z-index: 3;
   background: rgb(44, 44, 44);
-  border-radius: 10px;
+  border-radius: 4px;
   animation: fade 0.2s ease-in-out forwards;
   transition: all 0.2s ease-in-out;
 }
@@ -167,7 +175,7 @@ body {
 }
 .popup i.ed {
   position: absolute;
-  font-size: 20px;
+  font-size: 14px;
   left: 4px;
   top: 10px;
 }
@@ -181,16 +189,18 @@ body {
   font-size: 15px;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: 700;
+  margin: 7px;
 }
 .popup i.de::after {
   content: "Delete";
   font-size: 15px;
   font-family: Arial, Helvetica, sans-serif;
   font-weight: 700;
+  margin: 7px;
 }
 .popup i.de {
   position: absolute;
-  font-size: 20px;
+  font-size: 14px;
   left: 4px;
   top: 50px;
 }
@@ -210,19 +220,61 @@ body {
   outline: none;
 }
 /* ------------ add item ------------ */
-.add-to-do {
+.addtodo {
   width: 100%;
   height: 6.779661016949152%;
   min-height: 40px;
   background: rgba(0, 0, 0, 0.7);
   display: flex;
+
   align-items: center;
+}
+.addtodo button {
+  width: 100%;
+  padding: 7px;
+  margin: 0 2px;
+  background-color: transparent;
+  border: 2px solid #e36414;
+  border-radius: 10px;
+  font-size: 24px;
+  outline: none;
+  transition: border linear;
+  color: #e36414;
+  text-align: center;
+  transition: background-color 50ms;
+}
+.addtodo button:hover {
+  background-color: #2b2b2c;
+  border-color: #2b2b2c;
+  cursor: pointer;
+}
+.addtodo i {
+  position: absolute;
+  left: 20px;
+  font-size: 35px;
+  color: #e36414;
+}
+
+.add-to-do {
+  /* position: absolute; */
+  bottom: 6.779661016949152%;
+  width: 100%;
+  height: 6.779661016949152%;
+  min-height: 40px;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+
+  align-items: center;
+}
+.add-to-do button {
+  border-radius: 10px;
+  border: inherit;
+  background-color: white;
 }
 .add-to-do i {
   font-size: 40px;
   color: #e36414;
 }
-
 .add-to-do input {
   height: 35px;
   width: 89%;
@@ -312,7 +364,6 @@ body {
   display: -webkit-flex;
   display: -moz-box;
   display: -ms-flexbox;
-  background: rgba(0, 0, 0, 0.8);
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -329,11 +380,12 @@ body {
   border-radius: 10px;
   overflow: hidden;
   padding: 55px 55px 37px 55px;
-  background: #9152f8;
+  background: rgba(0, 0, 0, 0.8);
+  /* background: #9152f8;
   background: -webkit-linear-gradient(top, #7579ff, #b224ef);
   background: -o-linear-gradient(top, #7579ff, #b224ef);
   background: -moz-linear-gradient(top, #7579ff, #b224ef);
-  background: linear-gradient(top, #7579ff, #b224ef);
+  background: linear-gradient(top, #7579ff, #b224ef); */
 }
 
 /*------------------------------------------------------------------

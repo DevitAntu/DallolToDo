@@ -71,6 +71,12 @@ function userForm(type, isNewUser, to) {
   );
 }
 function onkeyup() {
+  const login = document.getElementById("userform");
+  login.addEventListener("keyup", (e) => {
+    if (e.keyCode == 13) {
+      document.getElementById("submit").click();
+    }
+  });
   const form = [...document.querySelectorAll(".input100")];
   form.forEach((e) => {
     e.addEventListener("keyup", () => {
@@ -142,12 +148,13 @@ function isUserUnique() {
 let newUser = false;
 let users, userid;
 let usersdata = localStorage.getItem("Users");
+// let currentuser = localStorage.getItem("loged");
 if (usersdata) {
   userForm("Login", newUser, "SignUp");
   onkeyup();
   loadUser();
 } else {
-  userForm("Sign Up", true, "");
+   userForm("Sign Up", true, "");
   onkeyup();
   signUser();
 }
@@ -190,7 +197,7 @@ function signUser() {
 }
 function loadUser() {
   users = JSON.parse(usersdata);
-  userid = users.length;
+  // userid = users.length;
 
   const btn = document.getElementById("submit");
   btn.addEventListener("click", (event) => {
@@ -291,6 +298,7 @@ const all = document.querySelector("#fi-al");
 const date = document.querySelector("#date");
 const list = document.getElementById("list");
 const input = document.querySelector("#input");
+const cat = document.querySelector("#input_cat");
 const add = document.getElementById("add-btn");
 const div = document.createElement("div");
 const content = document.querySelector(".content");
@@ -311,6 +319,7 @@ function filterAll() {
     let item = `<li class="item">
     <i title="Done" class="fa ${DONE} co" job="complete" id="${e.id}"></i>
     <p class="text ${LINE}">${e.name}</p>
+    <p class="cat_text">${e.cat}</p>
     <i class="fa fa-caret-down me me-${e.id}" id="${e.id}" job="menu" ></i>
     <div class="popup pop-${e.id}">
       <i class="fa fa-pencil ed" title="Edit" job="edit"  id="${e.id}"></i>
@@ -332,6 +341,27 @@ completed.addEventListener("click", () => {
       let item = `<li class="item">
     <i title="Done" class="fa ${DONE} co" job="complete" id="${e.id}"></i>
     <p class="text ${LINE}">${e.name}</p>
+    <i class="fa fa-caret-down me me-${e.id}" id="${e.id}" job="menu" ></i>
+    <div class="popup pop-${e.id}">
+      <i class="fa fa-pencil ed" title="Edit" job="edit"  id="${e.id}"></i>
+      <i title="Delete" class="fa fa-trash-o de" job="delete" id="${e.id}"></i>
+    </div>
+  </li>`;
+      list.insertAdjacentHTML("beforeend", item);
+    }
+  });
+});
+category.addEventListener("click", (cat) => {
+  getcurrentUserTodos();
+  list.innerHTML = "";
+  currentUserTodos.forEach((e) => {
+    if (e.cat == cat.target.textContent) {
+      const DONE = e.done ? CHECK : UNCHECK;
+      const LINE = e.done ? LINE_THROUGH : "";
+      let item = `<li class="item">
+    <i title="Done" class="fa ${DONE} co" job="complete" id="${e.id}"></i>
+    <p class="text ${LINE}">${e.name}</p>
+    <p class="cat_text">${e.cat}</p>
     <i class="fa fa-caret-down me me-${e.id}" id="${e.id}" job="menu" ></i>
     <div class="popup pop-${e.id}">
       <i class="fa fa-pencil ed" title="Edit" job="edit"  id="${e.id}"></i>
@@ -381,8 +411,8 @@ function removeEmpty() {
 }
 // Add Todo
 add.addEventListener("click", () => {
-  if (input.value) {
-    addTodo(input.value, false);
+  if (input.value && cat.value) {
+    addTodo(input.value, cat.value, false);
   }
 });
 list.addEventListener("click", (event) => {
@@ -431,6 +461,7 @@ function updateTodostatus(type) {
       : Number(document.getElementById("todolength").textContent);
   let opretion = type == "add" ? (numOftodos += 1) : (numOftodos -= 1);
   document.getElementById("todolength").textContent = `${opretion}`;
+  updateCatList();
 }
 // Get Current User Todos
 let toDoId;
@@ -468,6 +499,7 @@ function loadTodo() {
       todo.forEach((element) => {
         let todo = element.name;
         let done = element.done;
+        let category = element.cat;
         let id = element.id;
         const DONE = done ? CHECK : UNCHECK;
         const LINE = done ? LINE_THROUGH : "";
@@ -475,6 +507,7 @@ function loadTodo() {
         const item = `<li class="item">
                   <i title="Done" class="fa ${DONE} co" job="complete" id="${id}"></i>
                   <p class="text ${LINE}">${todo}</p>
+                  <p class="cat_text">${category}</p>
                   <i class="fa fa-caret-down me me-${id}" id="${id}" job="menu" ></i>
                   <div class="popup pop-${id}">
                     <i class="fa fa-pencil ed" title="Edit" job="edit"  id="${id}"></i>
@@ -490,11 +523,29 @@ function loadTodo() {
       });
     }
   }
+  updateCatList();
 }
-function addTodo(todo, done) {
+function updateCatList() {
+  category.innerHTML = "";
+  let cat_list = [];
+  let rray = [];
+  let set = {};
+  getcurrentUserTodos();
+  currentUserTodos.forEach((e) => {
+    rray.push(e.cat);
+  });
+  for (var i = 0; i < rray.length; i++) set[rray[i]] = true;
+  for (var item in set) cat_list.push(item);
+  cat_list.forEach((element) => {
+    let template = `<li>${element}</li>`;
+    category.insertAdjacentHTML("beforeend", template);
+  });
+}
+function addTodo(todo, category, done) {
   filterAll();
   currentUserTodos.push({
     name: todo,
+    cat: category,
     id: toDoId,
     done: done,
   });
@@ -504,6 +555,7 @@ function addTodo(todo, done) {
   const item = `<li class="item">
                   <i title="Done" class="fa ${DONE} co" job="complete" id="${toDoId}"></i>
                   <p class="text ${LINE}">${todo}</p>
+                  <p class="cat_text">${category}</p>
                   <i class="fa fa-caret-down me me-${toDoId}" id="${toDoId}" job="menu" ></i>
                   <div class="popup pop-${toDoId}">
                     <i class="fa fa-pencil ed" title="Edit" job="edit"  id="${toDoId}"></i>
@@ -570,13 +622,34 @@ function completeTodo(element) {
     ? false
     : true;
   localStorage.setItem("Users", JSON.stringify(users));
+  if (checkListTitle() == "completed") {
+    element.parentNode.parentNode.removeChild(element.parentNode);
+  }
+}
+function checkListTitle() {
+  if (completed.classList.contains("active")) {
+    return "completed";
+  } else {
+    return "all";
+  }
 }
 
 input.addEventListener("keyup", (event) => {
   if (event.keyCode == 13) {
     let todo = input.value;
-    if (todo) {
-      addTodo(todo, false);
+    let category = cat.value;
+    if ((todo, category)) {
+      addTodo(todo, category, false);
+      localStorage.setItem("Users", JSON.stringify(users));
+    }
+  }
+});
+cat.addEventListener("keyup", (event) => {
+  if (event.keyCode == 13) {
+    let todo = input.value;
+    let category = cat.value;
+    if ((todo, category)) {
+      addTodo(todo, category, false);
       localStorage.setItem("Users", JSON.stringify(users));
     }
   }
